@@ -70,13 +70,17 @@ public class ChooseAreaActivity extends Activity {
 	// 查询服务器时候的显示进度
 	private ProgressDialog progressDialog;
 
+	// 标志，判断是否是从weatherActivity跳转来的
+	private boolean isFromWeatherActivity;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		isFromWeatherActivity = getIntent().getBooleanExtra(
+				"isfromWeatherActivity", false);
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		if (sp.getBoolean("city_selected", false)) {
+		if (sp.getBoolean("city_selected", false)&&!isFromWeatherActivity) {
 			Intent intent = new Intent(this, WeatherActivity.class);
 			startActivity(intent);
 			finish();

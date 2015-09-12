@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.coolweather.app.db.CoolWeatherDB;
 import com.coolweather.app.model.City;
@@ -120,6 +121,7 @@ public class Utility {
 	 */
 	public static void handleWeatherResponse(Context context, String response) {
 		try {
+			Log.i("coolweather", response);
 			JSONObject jsonObject = new JSONObject(response);
 			JSONObject weatherInfo = jsonObject.getJSONObject("weatherinfo");
 			String cityName = weatherInfo.getString("city");
@@ -128,6 +130,7 @@ public class Utility {
 			String temp2 = weatherInfo.getString("temp2");
 			String weatherDesp = weatherInfo.getString("weather");
 			String publishTime = weatherInfo.getString("ptime");
+			Log.i("coolweather", publishTime);
 			saveWeatherInfo(context, cityName, weatherCode, temp1, temp2,
 					weatherDesp, publishTime);
 		} catch (JSONException e) {

@@ -6,13 +6,16 @@ import com.coolweather.app.util.HttpUtil;
 import com.coolweather.app.util.Utility;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,7 +24,7 @@ import android.widget.TextView;
  * @date 2015年9月12日 下午4:25:55
  * @version 1.0 Copyright 2015 xiaoliu All right reserved
  */
-public class WeatherActivity extends Activity {
+public class WeatherActivity extends Activity implements OnClickListener {
 	// 各种xml中的控件
 	private LinearLayout weatherLayout;
 	private TextView cityNameText;
@@ -30,6 +33,9 @@ public class WeatherActivity extends Activity {
 	private TextView temp1Text;
 	private TextView temp2Text;
 	private TextView currentDateText;
+
+	private ImageButton switchCity;
+	private ImageButton refreshWeather;
 
 	// 当前县的代号
 	private String countyCode;
@@ -41,7 +47,7 @@ public class WeatherActivity extends Activity {
 		setContentView(R.layout.weather_layout);
 		initComponent();
 		countyCode = getIntent().getStringExtra("countyCode");
-		Log.i("coolweather", "县代号"+countyCode);
+		Log.i("coolweather", "县代号" + countyCode);
 		if (!TextUtils.isEmpty(countyCode)) {
 			Log.i("coolweather", "第一次选择，同步中...");
 			publishText.setText("同步中..");
@@ -52,6 +58,8 @@ public class WeatherActivity extends Activity {
 			Log.i("coolweather", "已经选择过城市，直接显示天气");
 			showWeather();
 		}
+		switchCity.setOnClickListener(this);
+		refreshWeather.setOnClickListener(this);
 	}
 
 	/**
@@ -65,6 +73,8 @@ public class WeatherActivity extends Activity {
 		temp1Text = (TextView) findViewById(R.id.temp1);
 		temp2Text = (TextView) findViewById(R.id.temp2);
 		currentDateText = (TextView) findViewById(R.id.current_date);
+		switchCity = (ImageButton) findViewById(R.id.switch_city);
+		refreshWeather = (ImageButton) findViewById(R.id.refresh_weather);
 		Log.i("coolweather", "控件出事化完成");
 	}
 
@@ -100,9 +110,9 @@ public class WeatherActivity extends Activity {
 				if ("countyCode".equals(code)) {
 					if (!TextUtils.isEmpty(response)) {
 						Log.i("coolweather", response);
-						
+
 						String[] array = response.split("\\|");
-						Log.i("coolweather", ""+array.length);
+						Log.i("coolweather", "" + array.length);
 						if (array != null && array.length == 2) {
 							Log.i("coolweather", "根据县代号，查询天气代号完成");
 							queryWeatherInfo(array[1]);
@@ -149,5 +159,29 @@ public class WeatherActivity extends Activity {
 		currentDateText.setText(sp.getString("current_time", ""));
 		weatherLayout.setVisibility(View.VISIBLE);
 		cityNameText.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.switch_city:
+			Intent intent = new Intent(this, ChooseAreaActivity.class);
+			intent.putExtra("isfromWeatherActivity", true);
+			startActivity(intent);
+			finish();
+			break;
+
+		case R.id.refresh_weather:
+			publishText.setText("同步中...");
+			weatherLayout.setVisibility(View.INVISIBLE);
+			SharedPreferences sp = PreferenceManager
+					.getDefaultSharedPreferences(this);
+			String weatherCode = sp.getString("weather_code", "");
+			if (!TextUtils.isEmpty(weatherCode)) {
+				queryWeatherInfo(weatherCode);
+			}
+			break;
+		}
+
 	}
 }
